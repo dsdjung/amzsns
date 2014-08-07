@@ -74,7 +74,7 @@ func PublishAPNS(targetARN, alertMessage, badge, sound) (string, error) {
         log.Printf("json error: %s", err)
         return "", err
     }
-    return PublishMobile(targetARN, jsonMessage)
+    return PublishMobile(targetARN, string(jsonMessage))
 }
 
 func PublishMobile(targetARN, message) (string, error) {
