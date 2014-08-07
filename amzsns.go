@@ -46,12 +46,12 @@ func init() {
 func CreateEndPoint(host, platformApplicationARN, customerUserData, token string) (string, error) {
     method := "POST"
     path := ""
-    now := time.Now().UTC()
+    //now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
     //date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
     
     // 8601
-    date := now.Format(time.RFC3339)
+    //date := now.Format(time.RFC3339)
     
     params := make(map[string]string)
     /*
