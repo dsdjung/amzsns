@@ -9,6 +9,7 @@ import (
     "crypto/hmac"
     "crypto/sha256"
     "encoding/base64"
+    "encoding/json"
     "errors"
     "fmt"
     "github.com/stathat/jconfig"
@@ -81,7 +82,7 @@ func PublishAPNS(targetARN, alertMessage, badge, sound string) (string, error) {
     return PublishMobile(targetARN, string(jsonMessage))
 }
 
-func PublishMobile(targetARN, message) (string, error) {
+func PublishMobile(targetARN, message string) (string, error) {
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
     date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
