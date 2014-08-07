@@ -67,8 +67,12 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
 func PublishAPNS(targetARN, alertMessage, badge, sound) (string, error) {
     message := new(APNSMessageType)
     message.Alert = alertMessage
-    message.Badge = badge
-    message.Sound = sound
+    if (0 != len(badge)) {
+        message.Badge = badge
+    }
+    if (0 != len(sound)) {
+        message.Sound = sound
+    }
     jsonMessage, err := json.Marshal(message)
     if err != nil {
         log.Printf("json error: %s", err)
