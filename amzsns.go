@@ -53,7 +53,7 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     // 8601
     date := now.Format(time.RFC3339)
     
-    var params map[string]string
+    params := make(map[string]string)
     params["Action"] = "CreatePlatformEndpoint"
     params["PlatformApplicationArn"] = platformApplicationARN
     params["CustomUserData"] = customerUserData
