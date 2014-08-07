@@ -44,7 +44,7 @@ func init() {
 }
 
 func CreateEndPoint(host, platformApplicationARN, customerUserData, token string) (string, error) {
-    method := "GET"
+    method := "POST"
     path := ""
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
@@ -54,6 +54,7 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     date := now.Format(time.RFC3339)
     
     params := make(map[string]string)
+    /*
     params["Action"] = "CreatePlatformEndpoint"
     params["PlatformApplicationArn"] = platformApplicationARN
     params["CustomUserData"] = customerUserData
@@ -64,6 +65,7 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     params["SignatureVersion"] = "2"
     params["SignatureMethod"] = "HmacSHA256"
 
+
     var sarray []string
     for k, v := range params {
 	sarray = append(sarray, aws.Encode(k)+"="+aws.Encode(v))
@@ -71,6 +73,8 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     sort.StringSlice(sarray).Sort()
     joined := strings.Join(sarray, "&")
     payload := method + "\n" + host + "\n" + path + "\n" + joined
+        */
+    payload := method + "\n" + host + "\n" + path + "/\n"
     hash := hmac.New(sha256.New, []byte(secretKey))
     hash.Write([]byte(payload))
     signature := make([]byte, b64.EncodedLen(hash.Size()))
@@ -159,7 +163,7 @@ func sign(auth aws.Auth, method, path string, params map[string]string, host str
 
 func snsPost(data url.Values) (string, error) {
     body := strings.NewReader(data.Encode())
-    req, err := http.NewRequest("GET", endpoint, body)
+    req, err := http.NewRequest("POST", endpoint, body)
     if err != nil {
         return "", err
     }
