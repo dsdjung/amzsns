@@ -18,6 +18,7 @@ import (
     "log"
     "net/http"
     "net/url"
+    "sort"
     "strings"
     "time"
 )
@@ -42,7 +43,9 @@ func init() {
     secretKey = config.GetString("aws_secret_key")
 }
 
-func CreateEndPoint(platformApplicationARN, customerUserData, token string) (string, error) {
+func CreateEndPoint(host, platformApplicationARN, customerUserData, token string) (string, error) {
+    method := "POST"
+    path := ""
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
     //date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
@@ -68,7 +71,7 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     sort.StringSlice(sarray).Sort()
     joined := strings.Join(sarray, "&")
     payload := method + "\n" + host + "\n" + path + "\n" + joined
-    hash := hmac.New(sha256.New, []byte(auth.SecretKey))
+    hash := hmac.New(sha256.New, []byte(secretKey))
     hash.Write([]byte(payload))
     signature := make([]byte, b64.EncodedLen(hash.Size()))
     b64.Encode(signature, hash.Sum(nil))
