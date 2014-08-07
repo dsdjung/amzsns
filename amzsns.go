@@ -86,7 +86,7 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     data.Add("Token", token)
     data.Add("AWSAccessKeyId", accessKey)
     data.Add("SignatureVersion", "2")
-    data.Add("Signature", signature)
+    data.Add("Signature", string(signature))
     data.Add("Version", "2010-03-31")
     data.Add("Timestamp", date)
 
