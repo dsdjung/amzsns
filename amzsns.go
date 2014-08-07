@@ -96,7 +96,6 @@ func PublishMobile(targetARN, message string) (string, error) {
     data.Add("Action", "Publish")
     data.Add("TargetArn", targetARN)
     data.Add("Message", message)
-    data.Add("Token", token)
     data.Add("MessageStructure", "json")
     data.Add("SignatureMethod", "HmacSHA256")
     data.Add("AWSAccessKeyId", accessKey)
