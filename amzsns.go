@@ -64,7 +64,7 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     return snsPost(data)
 }
 
-func PublishAPNS(targetARN, alertMessage, badge, sound) (string, error) {
+func PublishAPNS(targetARN, alertMessage, badge, sound string) (string, error) {
     message := new(APNSMessageType)
     message.Alert = alertMessage
     if (0 != len(badge)) {
