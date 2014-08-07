@@ -12,6 +12,7 @@ import (
     "encoding/json"
     "errors"
     "fmt"
+    "github.com/crowdmob/goamz/aws"
     "github.com/stathat/jconfig"
     "io/ioutil"
     "log"
@@ -33,6 +34,7 @@ const (
 )
 
 var accessKey, secretKey string
+var b64 = base64.StdEncoding
 
 func init() {
     config := jconfig.LoadConfig("/etc/aws.conf")
@@ -48,10 +50,30 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     // 8601
     date := now.Format(time.RFC3339)
     
-    h := hmac.New(sha256.New, []uint8(secretKey))
-    h.Write([]uint8(date))
-    signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
-    //auth := fmt.Sprintf("AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HmacSHA256, Signature=%s", accessKey, signature)
+    var params map[string]string
+    params["Action"] = "CreatePlatformEndpoint"
+    params["PlatformApplicationArn"] = platformApplicationARN
+    params["CustomUserData"] = customerUserData
+    params["Token"] = token
+    params["Version"] = "2010-03-31"
+    params["Timestamp"] = date
+    params["AWSAccessKeyId"] = accessKey
+    params["SignatureVersion"] = "2"
+    params["SignatureMethod"] = "HmacSHA256"
+
+    var sarray []string
+    for k, v := range params {
+	sarray = append(sarray, aws.Encode(k)+"="+aws.Encode(v))
+    }
+    sort.StringSlice(sarray).Sort()
+    joined := strings.Join(sarray, "&")
+    payload := method + "\n" + host + "\n" + path + "\n" + joined
+    hash := hmac.New(sha256.New, []byte(auth.SecretKey))
+    hash.Write([]byte(payload))
+    signature := make([]byte, b64.EncodedLen(hash.Size()))
+    b64.Encode(signature, hash.Sum(nil))
+
+    params["Signature"] = string(signature)
     
     data := make(url.Values)
     data.Add("Action", "CreatePlatformEndpoint")
@@ -60,7 +82,7 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     data.Add("CustomUserData", customerUserData)
     data.Add("Token", token)
     data.Add("AWSAccessKeyId", accessKey)
-    data.Add("SignatureVersion", "4")
+    data.Add("SignatureVersion", "2")
     data.Add("Signature", signature)
     data.Add("Version", "2010-03-31")
     data.Add("Timestamp", date)
@@ -109,6 +131,27 @@ func PublishMobile(targetARN, message string) (string, error) {
 
     return snsPost(data)
 }
+/*
+func sign(auth aws.Auth, method, path string, params map[string]string, host string) {
+	params["AWSAccessKeyId"] = auth.AccessKey
+	params["SignatureVersion"] = "2"
+	params["SignatureMethod"] = "HmacSHA256"
+
+	var sarray []string
+	for k, v := range params {
+		sarray = append(sarray, aws.Encode(k)+"="+aws.Encode(v))
+	}
+	sort.StringSlice(sarray).Sort()
+	joined := strings.Join(sarray, "&")
+	payload := method + "\n" + host + "\n" + path + "\n" + joined
+	hash := hmac.New(sha256.New, []byte(auth.SecretKey))
+	hash.Write([]byte(payload))
+	signature := make([]byte, b64.EncodedLen(hash.Size()))
+	b64.Encode(signature, hash.Sum(nil))
+
+	params["Signature"] = string(signature)
+}
+*/
 
 func snsPost(data url.Values) (string, error) {
     body := strings.NewReader(data.Encode())
