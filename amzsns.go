@@ -44,7 +44,7 @@ func init() {
 }
 
 func CreateEndPoint(host, platformApplicationARN, customerUserData, token string) (string, error) {
-    method := "POST"
+    method := "GET"
     path := ""
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
@@ -77,6 +77,7 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     b64.Encode(signature, hash.Sum(nil))
 
     params["Signature"] = string(signature)
+    log.Printf("amzsns.CreateEndPoint: payload: %s", payload)
     
     data := make(url.Values)
     data.Add("Action", "CreatePlatformEndpoint")
@@ -158,7 +159,7 @@ func sign(auth aws.Auth, method, path string, params map[string]string, host str
 
 func snsPost(data url.Values) (string, error) {
     body := strings.NewReader(data.Encode())
-    req, err := http.NewRequest("POST", endpoint, body)
+    req, err := http.NewRequest("GET", endpoint, body)
     if err != nil {
         return "", err
     }
