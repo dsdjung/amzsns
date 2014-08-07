@@ -85,15 +85,15 @@ func CreateEndPoint(host, platformApplicationARN, customerUserData, token string
     
     data := make(url.Values)
     data.Add("Action", "CreatePlatformEndpoint")
-    data.Add("SignatureMethod", "HmacSHA256")
+    //data.Add("SignatureMethod", "HmacSHA256")
     data.Add("PlatformApplicationArn", platformApplicationARN)
     data.Add("CustomUserData", customerUserData)
     data.Add("Token", token)
-    data.Add("AWSAccessKeyId", accessKey)
-    data.Add("SignatureVersion", "2")
-    data.Add("Signature", string(signature))
-    data.Add("Version", "2010-03-31")
-    data.Add("Timestamp", date)
+    //data.Add("AWSAccessKeyId", accessKey)
+    //data.Add("SignatureVersion", "2")
+    //data.Add("Signature", string(signature))
+    //data.Add("Version", "2010-03-31")
+    //data.Add("Timestamp", date)
 
     return snsPost(data)
 }
@@ -168,6 +168,17 @@ func snsPost(data url.Values) (string, error) {
         return "", err
     }
     req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+    
+    
+    now := time.Now().UTC()
+    // date format: "Tue, 25 May 2010 21:20:27 +0000"
+    date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
+    req.Header.Set("Date", date)
+    h := hmac.New(sha256.New, []uint8(secretKey))
+    h.Write([]uint8(date))
+    signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
+    auth := fmt.Sprintf("AWS3-HTTPS AWSAccessKeyId=%s, Algorithm=HmacSHA256, Signature=%s", accessKey, signature)
+    req.Header.Set("X-Amzn-Authorization", auth)
 
     r, err := http.DefaultClient.Do(req)
     if err != nil {
