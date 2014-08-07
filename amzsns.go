@@ -43,7 +43,10 @@ func init() {
 func CreateEndPoint(platformApplicationARN, customerUserData, token string) (string, error) {
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
-    date := now.Format("Mon, 02 Jan 2006 15:04:05 Z0700")
+    //date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
+    
+    // 8601
+    date := now.Format("2007-04-05T14:30:01Z")
     
     h := hmac.New(sha256.New, []uint8(secretKey))
     h.Write([]uint8(date))
