@@ -43,10 +43,10 @@ func init() {
 func CreateEndPoint(platformApplicationARN, customerUserData, token string) (string, error) {
     now := time.Now().UTC()
     // date format: "Tue, 25 May 2010 21:20:27 +0000"
-    date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
+    //date := now.Format("Mon, 02 Jan 2006 15:04:05 -0700")
     
     // 8601
-    timestamp := now.Format(time.RFC3339)
+    date := now.Format(time.RFC3339)
     
     h := hmac.New(sha256.New, []uint8(secretKey))
     h.Write([]uint8(date))
@@ -60,10 +60,10 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     data.Add("CustomUserData", customerUserData)
     data.Add("Token", token)
     data.Add("AWSAccessKeyId", accessKey)
-    data.Add("SignatureVersion", "2")
+    data.Add("SignatureVersion", "4")
     data.Add("Signature", signature)
     data.Add("Version", "2010-03-31")
-    data.Add("Timestamp", timestamp)
+    data.Add("Timestamp", date)
 
     return snsPost(data)
 }
