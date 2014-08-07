@@ -20,6 +20,13 @@ import (
     "time"
 )
 
+// Using text directly on "alert" since no alert dictionary values are going to be used
+type APNSMessageType struct {
+	Alert                   string  `json:"alert"`
+	Badge                   string  `json:"badge"`
+	Sound                   string `json:"sound"`
+}
+
 const (
     endpoint = "http://sns.us-west-2.amazonaws.com"
 )
@@ -57,6 +64,18 @@ func CreateEndPoint(platformApplicationARN, customerUserData, token string) (str
     return snsPost(data)
 }
 
+func PublishAPNS(targetARN, alertMessage, badge, sound) (string, error) {
+    message := new(APNSMessageType)
+    message.Alert = alertMessage
+    message.Badge = badge
+    message.Sound = sound
+    jsonMessage, err := json.Marshal(message)
+    if err != nil {
+        log.Printf("json error: %s", err)
+        return "", err
+    }
+    return PublishMobile(targetARN, jsonMessage)
+}
 
 func PublishMobile(targetARN, message) (string, error) {
     now := time.Now().UTC()
